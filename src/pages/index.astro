@@ -1,116 +1,252 @@
 ---
 import Container from '@components/Container/Container';
-import Modal from '@components/Modal/Modal';
-import myImage from '@img/mountain.jpg';
 import MainLayout from '@layouts/Main/Main';
-import { Picture } from 'astro:assets';
-import Button from '@components/Button/Button';
-import ModalPolicy from '@components/ModalPolicy/ModalPolicy';
-import TiltParent from '@components/TiltParent/TiltParent';
-import ButtonFlair from '@components/ButtonFlair/ButtonFlair';
-import AccordionSection from '@blocks/AccordionSection/AccordionSection';
+import { defineHex, Grid, rectangle } from 'honeycomb-grid';
+const Hex = defineHex({ dimensions: 160, origin: 'topLeft' });
+const grid = new Grid(Hex, rectangle({ width: 15, height: 5 }));
+const hexes = Array.from(grid);
+
+hexes.forEach((hex) => {
+  // сулчайно число от 1 до 50
+  const randomNum = Math.floor(Math.random() * 50) + 1;
+  hex.image = `https://picsum.photos/${randomNum}00/300`;
+});
+//
 ---
+<script>
+
+  const mosPos = { x: 0, y: 0 };
+  const list = document.querySelector('.clip-list');
+  document.addEventListener('mousemove', (event) => {
+    const { clientX, clientY, view } = event;
+    const { innerWidth, innerHeight } = view;
+    mosPos.x = (clientX / innerWidth).toFixed(2);
+    mosPos.y = (clientY / innerHeight).toFixed(2);
+    // будем двигать list в зависимости от mosPos в противоложную сторону от мышы
+    const offsetX = (0.5 - mosPos.x) * 100; // умножаем на 20 для небольшого смещения
+    const offsetY = (0.5 - mosPos.y) * 60; // умножаем на 20 для небольшого смещения
+    list.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+    console.log('mosPos =', mosPos);
+  });
+
+</script>
 
 <MainLayout title="Главная" description="Описание">
-  <Container>
-    <AccordionSection />
-  </Container>
-  <section class="hero">
-    ButtonFlair with decor animation<br />
-    <ButtonFlair>funny button</ButtonFlair>
-    <ButtonFlair>button 💘</ButtonFlair>
-    <div class="hero__container container">
-      <h2>Hello swiper</h2>
-      <div class="swiper hero-swiper">
-        <div class="swiper-wrapper">
-          <div class="swiper-slide hero-slide">
-            <picture>
-              <img
-                src="./assets/mountain-min.jpg"
-                width="320"
-                height="213"
-                alt="image"
-              />
-            </picture>
-          </div>
-          <div class="swiper-slide hero-slide">
-            <Picture
-              src={myImage}
-              alt="Example image."
-              quality={'high'}
-              formats={['webp']}
-              fallbackFormat="jpg"
-              width={800}
-              densities={[2]}
-            />
-          </div>
-        </div>
-        <div class="hero__pagination swiper-pagination"></div>
-        <Button
-          icon="arrow-right"
-          class="swiper__button swiper__button--prev"
-          iconPosBefore
-        />
-        <Button
-          icon="arrow-right"
-          class="swiper__button swiper__button--next"
-          iconPosBefore
-        />
-      </div>
+  <div class="wrap">
+    <ul class="clip-list">
+      {
+        hexes.map((hex, index) => {
+          const x = hex.row % 2 !== 0 ? hex.col - 5.5 : hex.col - 4;
+          return (
+            <li class="clip-list__item">
+              <div
+                class="clip-list__item-inner"
+                style={`--x: ${x}; --y: ${hex.row}`}
+              >
+                {`Item ${index + 1}`}
+                <p class="">
+                  q: {hex.row} r:{hex.col}
+                </p>
+                <img
+                  class="clip-list__item-inner-image"
+                  src={hex.image}
+                  alt=""
+                  width="160"
+                  height="160"
+                />
+              </div>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </div>
+  <div class="grid-container">
+    <div class="grid">
+      <div class="item hexagon"></div>
+      <div class="item hexagon"></div>
+      <div class="item hexagon"></div>
+      <div class="item hexagon"></div>
+      <div class="item hexagon"></div>
     </div>
-  </section>
-  <section>
-    <Container>
-      <Button
-        as="a"
-        target=""
-        href="/"
-        text="Стандартная модалка"
-        modal="example"
-      />
-      <Button text="Mодалка фиксированная по высоте" modal="policy" />
-    </Container>
-  </section>
-  <section>
-    <Container>
-      <div class="list" style="columns: 300px;">
-        {
-          [1, 2, 3].map(() => (
-            <TiltParent>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Quis
-              quod, voluptates, quae, quos quidem quibusdam dolorum consequuntur
-              voluptatum nemo quia doloremque. Quisquam voluptates, quae, quos
-              quidem quibusdam dolorum consequuntur voluptatum nemo quia
-              doloremque.
-            </TiltParent>
-          ))
-        }
-
-        <TiltParent>
-          <img
-            src="https://picsum.photos/300/400"
-            width="300"
-            height="400"
-            alt="image"
-          />
-        </TiltParent>
-        <TiltParent>
-          <img
-            src="./assets/mountain-min.jpg"
-            width="320"
-            height="213"
-            alt="image"
-          />
-        </TiltParent>
-      </div>
-    </Container>
-  </section>
-
-  <Fragment slot="modals">
-    <Modal name="example">
-      <h3>Example modal</h3>
-      <button type="button" data-close-modal>закрыть</button>
-    </Modal>
-    <ModalPolicy />
-  </Fragment>
+    <svg class="svg-parent" viewBox="-1 0 500 500">
+      {
+        hexes.map((hex) => (
+          <g class="svg-parent__g">
+            <polygon
+              points={hex.corners.map(({ x, y }) => `${x},${y}`).join(' ')}
+              stroke-width="1"
+              stroke="#000"
+              fill="none"
+            />
+          </g>
+        ))
+      }
+    </svg>
+  </div>
 </MainLayout>
+
+<style>
+  *,
+  *::before,
+  *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+.wrap{
+  --hex-width: 160px;
+  width: 100%;
+  padding-block: var(--hex-width);
+  height: calc(var(--hex-width) * 5 + var(--hex-width));
+  overflow: hidden;
+}
+ .clip-list {
+    /* display: flex; */
+    flex-wrap: wrap;
+    height: calc(var(--hex-width) * 5);
+    /* overflow-x: clip; */
+    position: relative;
+    filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.5));
+    transition: transform 0.3s ease 0s;
+    max-width: 768px;
+    margin: 0 auto;
+    list-style-type: none;
+  }
+  .clip-list__item {
+    flex: 0 0 var(--hex-width);
+    aspect-ratio: 1;
+    width: var(--hex-width);
+    /* border: 1px solid #000; */
+    min-height: 75px;
+    /* position: relative; */
+    &:hover {
+      .clip-list__item-inner {
+        transform: var(--trans) translateZ(10px) scale(1.2);
+        z-index: 1;
+
+      }
+    }
+  }
+  .clip-list__item-inner {
+    padding: 24px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: tomato;
+    width: var(--hex-width);
+    max-width: 100%;
+    aspect-ratio: 1;
+    outline: 1px solid #000;
+    transform-origin: center;
+    --trans: perspective(75em) rotateX(11deg) rotateZ(-6deg) scale(1.145)
+      translate(
+        calc(var(--x) * var(--hex-width)),
+        calc(var(--y) * var(--hex-width) * 0.74)
+      );
+    transform: var(--trans);
+    transition: transform 0.3s ease 0s;
+    clip-path: polygon(50% 100%, 100% 75%, 100% 25%, 50% 0%, 0% 25%, 0% 75%);
+    background-size: cover;
+  }
+  .clip-list__item-inner-image {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    object-fit: cover;
+    object-position: center;
+    z-index: -1;
+  }
+  .svg-parent {
+    border: 1px solid #000;
+  }
+  .svg-parent__g {
+    transform: perspective(75em) rotateX(11deg) rotateZ(-11deg)
+      translate(0px, 50px);
+    transform-origin: center;
+  }
+
+  .item {
+    height: 150px;
+    background: hsl(340 80% 50%);
+    border-radius: 1rem;
+  }
+
+  .hexagon {
+    position: relative;
+    display: inline-block;
+    text-align: center;
+    margin-block: 20%;
+  }
+  .hexagon,
+  .hexagon::before,
+  .hexagon::after {
+    border-radius: 13%;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1.5;
+    border: 1px solid #000;
+  }
+  .hexagon:nth-child(even) {
+  }
+  .hexagon::before {
+    background-color: inherit;
+    content: '';
+    position: absolute;
+    left: 0;
+    transform: rotate(-60deg);
+  }
+  .hexagon::after {
+    background-color: inherit;
+    content: '';
+    position: absolute;
+    left: 0;
+    transform: rotate(60deg);
+  }
+
+  .grid-container {
+    width: 100%;
+    max-width: 1440px;
+    margin-inline: auto;
+    container-type: inline-size;
+    overflow-x: clip;
+  }
+  .grid {
+    padding-block: 10px;
+    display: grid;
+    gap: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    @container (width >= calc(100px * 2)) {
+      .item {
+        grid-column: span 2;
+      }
+    }
+    @container (calc(100px * 4) < width < calc(100px * 6) ) {
+      .item:last-child:nth-child(odd) {
+        grid-column: 2 / span 2;
+      }
+    }
+    @container (calc(100px * 6) < width < calc(100px * 8)) {
+      .item:nth-child(3n + 4):last-child {
+        grid-column: 3 / 5;
+      }
+      &:has(:nth-child(3n + 5):last-child) > :nth-last-child(2) {
+        grid-column: 2 / 4;
+      }
+    }
+    @container (calc(100px * 8) < width < calc(100px * 10)) {
+      .item:nth-child(4n + 5):last-child {
+        grid-column: 4 / 6;
+      }
+      &:has(:nth-child(4n + 6):last-child) > :nth-last-child(2) {
+        grid-column: 3 / 5;
+      }
+      &:has(:nth-child(4n + 7):last-child) > :nth-last-child(3) {
+        grid-column: 2 / 4;
+      }
+    }
+  }
+</style>

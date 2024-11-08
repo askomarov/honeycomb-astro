@@ -2397,6 +2397,11 @@ hastscript@^8.0.0:
     property-information "^6.0.0"
     space-separated-tokens "^2.0.0"
 
+honeycomb-grid@^4.1.5:
+  version "4.1.5"
+  resolved "https://registry.yarnpkg.com/honeycomb-grid/-/honeycomb-grid-4.1.5.tgz#326c992cdd82ad87a13d147493351de8fce7d1b5"
+  integrity sha512-VrnQwu5dHuzqK3wFhLD9EURmLSyEWb0teiHhDJq6WdK0MrFsEtKNYT1HLzXOLe2X1acU8Y9hhK7wWfIiGK1G5w==
+
 html-escaper@^3.0.3:
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/html-escaper/-/html-escaper-3.0.3.tgz#4d336674652beb1dcbc29ef6b6ba7f6be6fdfed6"
