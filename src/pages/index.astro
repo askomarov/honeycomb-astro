@@ -6,15 +6,19 @@ const Hex = defineHex({ dimensions: 160, origin: 'topLeft' });
 const grid = new Grid(Hex, rectangle({ width: 15, height: 5 }));
 const hexes = Array.from(grid);
 
-hexes.forEach((hex) => {
+hexes.forEach((hex, index) => {
   // сулчайно число от 1 до 50
   const randomNum = Math.floor(Math.random() * 50) + 1;
   hex.image = `https://picsum.photos/${randomNum}00/300`;
+  if (index === 34) {
+    hex.image = '/assets/askomarov.jpg';
+    hex.href = 'https://github.com/askomarov';
+  }
 });
 //
 ---
-<script>
 
+<script>
   const mosPos = { x: 0, y: 0 };
   const list = document.querySelector('.clip-list');
   document.addEventListener('mousemove', (event) => {
@@ -28,32 +32,52 @@ hexes.forEach((hex) => {
     list.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
     console.log('mosPos =', mosPos);
   });
-
 </script>
 
 <MainLayout title="Главная" description="Описание">
-  <div class="wrap">
+  <Container>
+    <section class="hero">
+      <h1>HERO best title</h1>
+      <p>
+        Honeycomb — это сеть шестиугольных ячеек, созданная самой природой. Как
+        будто искусные мастера выстроили причудливый узор, переплетение сот, где
+        каждая грань соединяется с другой в идеальной гармонии. Это не просто
+        структура, а совершенная архитектура жизни, где каждая ячейка несёт
+        смысл, словно тайная библиотека природы.
+      </p>
+    </section>
+  </Container>
+  <div class="clip-wrap">
     <ul class="clip-list">
       {
         hexes.map((hex, index) => {
-          const x = hex.row % 2 !== 0 ? hex.col - 5.5 : hex.col - 4;
+          const x = hex.row % 2 !== 0 ? hex.col - 5.5 : hex.col - 5;
           return (
-            <li class="clip-list__item">
-              <div
-                class="clip-list__item-inner"
-                style={`--x: ${x}; --y: ${hex.row}`}
-              >
-                {`Item ${index + 1}`}
-                <p class="">
+            <li class="clip-list__item" style={`--x: ${x}; --y: ${hex.row}`}>
+              <div class="clip-list__item-inner">
+                <p class="clip-list__item-text">
+                  {`Item ${index + 1}`}
                   q: {hex.row} r:{hex.col}
                 </p>
-                <img
-                  class="clip-list__item-inner-image"
-                  src={hex.image}
-                  alt=""
-                  width="160"
-                  height="160"
-                />
+                {hex.href ? (
+                  <a href={hex.href} target="_blank" rel="noreferrer nofollow">
+                    <img
+                      class="clip-list__item-inner-image"
+                      src={hex.image}
+                      alt=""
+                      width="160"
+                      height="160"
+                    />
+                  </a>
+                ) : (
+                  <img
+                    class="clip-list__item-inner-image"
+                    src={hex.image}
+                    alt=""
+                    width="160"
+                    height="160"
+                  />
+                )}
               </div>
             </li>
           );
@@ -94,21 +118,28 @@ hexes.forEach((hex) => {
     padding: 0;
     box-sizing: border-box;
   }
-.wrap{
-  --hex-width: 160px;
-  width: 100%;
-  padding-block: var(--hex-width);
-  height: calc(var(--hex-width) * 5 + var(--hex-width));
-  overflow: hidden;
-}
- .clip-list {
-    /* display: flex; */
-    flex-wrap: wrap;
+  main {
+    overflow-x: clip;
+  }
+  .hero {
+    padding: 2rem;
+    margin-bottom: calc(160px * 2 * -1);
+    position: relative;
+    z-index: 2;
+    backdrop-filter: blur(3px);
+  }
+  .clip-wrap {
+    --hex-width: 160px;
+    width: 100%;
+    display: grid;
+    place-items: center;
+    height: calc(var(--hex-width) * 7.5);
+    overflow: hidden;
+  }
+  .clip-list {
     height: calc(var(--hex-width) * 5);
-    /* overflow-x: clip; */
     position: relative;
     filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.5));
-    transition: transform 0.3s ease 0s;
     max-width: 768px;
     margin: 0 auto;
     list-style-type: none;
@@ -117,14 +148,21 @@ hexes.forEach((hex) => {
     flex: 0 0 var(--hex-width);
     aspect-ratio: 1;
     width: var(--hex-width);
-    /* border: 1px solid #000; */
     min-height: 75px;
-    /* position: relative; */
+    position: absolute;
     &:hover {
-      .clip-list__item-inner {
-        transform: var(--trans) translateZ(10px) scale(1.2);
-        z-index: 1;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
+      z-index: 1;
 
+      .clip-list__item-inner {
+        transform: var(--trans) translateZ(10px) scale(1.15);
+        z-index: 1;
+      }
+      .clip-list__item-inner-image {
+        filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
+      }
+      .clip-list__item-text {
+        opacity: 1;
       }
     }
   }
@@ -139,7 +177,7 @@ hexes.forEach((hex) => {
     aspect-ratio: 1;
     outline: 1px solid #000;
     transform-origin: center;
-    --trans: perspective(75em) rotateX(11deg) rotateZ(-6deg) scale(1.145)
+    --trans: perspective(75em) rotateX(30deg) rotateZ(-7deg) scale(1.145)
       translate(
         calc(var(--x) * var(--hex-width)),
         calc(var(--y) * var(--hex-width) * 0.74)
@@ -148,6 +186,11 @@ hexes.forEach((hex) => {
     transition: transform 0.3s ease 0s;
     clip-path: polygon(50% 100%, 100% 75%, 100% 25%, 50% 0%, 0% 25%, 0% 75%);
     background-size: cover;
+  }
+  .clip-list__item-text {
+    user-select: none;
+    opacity: 0;
+    transition: opacity 0.3s ease 0s;
   }
   .clip-list__item-inner-image {
     position: absolute;
